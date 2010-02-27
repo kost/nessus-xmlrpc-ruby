@@ -263,6 +263,28 @@ case operation
 			n.report_delete(uid)
 			$stderr.print "done\n" if verbose > 0
 		end
+	when "report"
+		uid=scanname
+		if (output == '') and (output1 == '') 
+			$stderr.print "[e] You want report, but specify filename with --output or output1\n"
+		end
+		unless output == ''
+			$stderr.print "[i] Output XML report to file: "+output if verbose > 0
+			content=n.file_report_download(uid)	
+			File.open(output, 'w') {|f| f.write(content) }	
+			$stderr.print ": done\n" if verbose > 0
+		end
+		unless output1 == ''
+			$stderr.print "[i] Output XML1 report to file: "+output1 if verbose > 0
+			content=n.file_report1_download(uid)	
+			File.open(output, 'w') {|f| f.write(content) }	
+			$stderr.print ": done\n" if verbose > 0
+		end
+		if deletereport
+			$stderr.print "[i] Deleting report: " if verbose > 0
+			n.report_delete(uid)
+			$stderr.print "done\n" if verbose > 0
+		end
 	when "stop"
 		$stderr.print "[i] Stopping scan: " + scanname if verbose > 0
 		n.scan_stop(scanname)
