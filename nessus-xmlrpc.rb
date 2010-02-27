@@ -294,6 +294,15 @@ class NessusXMLRPC
 		docxml=nessus_request('policy/list', post)
 		return docxml
 	end
+	def policy_list_names
+		post= { "token" => @token } 
+		docxml=nessus_request('policy/list', post)
+		list = Array.new
+		docxml.root.elements['contents'].elements['policies'].each_element('//policy') {|policy|
+				list.push policy.elements['policyName'].text
+		}
+		return list
+	end
 	def plugins_list
 		post= { "token" => @token } 
 		docxml=nessus_request('plugins/list', post)

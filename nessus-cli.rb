@@ -49,6 +49,7 @@ def give_help
 --resume-all	resume all scans
 --report <id>	download report identified by <id>
 --list-scans	list scans
+--list-policy	list policies
 --status <id>	get status of scan by <id>
 --verbose	be verbose
 --debug		be even more verbose
@@ -76,6 +77,7 @@ opt = GetoptLong.new(
 	["--wait", "-w", GetoptLong::OPTIONAL_ARGUMENT],
 	["--scan", "-s", GetoptLong::REQUIRED_ARGUMENT],
 	["--list-scans", "-l", GetoptLong::NO_ARGUMENT],
+	["--list-policy", "-L", GetoptLong::NO_ARGUMENT],
 	["--status", "-W", GetoptLong::REQUIRED_ARGUMENT],
 	["--stop", "-S", GetoptLong::REQUIRED_ARGUMENT],
 	["--stop-all", "-a", GetoptLong::NO_ARGUMENT],
@@ -204,7 +206,19 @@ opt.each do |opt,arg|
 				debug = arg.to_i
 			end
 		when	'--list-scans'
-			operation = "list-scans"
+			if operation == ''
+				operation = "list-scans"
+				scanname = arg
+			else
+				give_error
+			end
+		when	'--list-policy'
+			if operation == ''
+				operation = "list-policy"
+				scanname = arg
+			else
+				give_error
+			end
 	end
 end
 
@@ -338,6 +352,11 @@ case operation
 		list.each {|scan| 
 			puts scan['id']+":"+scan['name']+":"+ \
 				scan['current']+"/"+scan['total']
+		}
+	when "list-policy"
+		list=n.policy_list_names
+		list.each {|policy| 
+			puts policy 
 		}
 		
 end
