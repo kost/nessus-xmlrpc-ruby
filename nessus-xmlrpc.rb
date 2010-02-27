@@ -11,7 +11,7 @@ require 'rexml/document'
 
 # Usage:
 # 
-# require 'nessus-xmlrpc.rb'
+# require 'nessus-xmlrpc'
 # n=NessusXMLRPC::NessusXMLRPC.new('https://localhost:8834','user','pass');
 # if n.logged_in
 # 	id,name = n.get_policy_first
