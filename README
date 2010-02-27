@@ -50,6 +50,7 @@ Simple example:
 
 require 'nessus-xmlrpc'
 n=NessusXMLRPC::NessusXMLRPC.new('https://localhost:8834','user','pass');
+# n=NessusXMLRPC::NessusXMLRPC.new('','user','pass'); # it's same
 if n.logged_in
       id,name = n.get_policy_first
       puts "using policy ID: " + id + " with name: " + name
