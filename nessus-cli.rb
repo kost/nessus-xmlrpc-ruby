@@ -47,6 +47,7 @@ def give_help
 --pause-all	pause all scans
 --resume <id>	resume scan identified by <id>
 --resume-all	resume all scans
+--report <id>	download report identified by <id>
 --list-scans	list scans
 --verbose	be verbose
 --debug		be even more verbose
@@ -80,6 +81,7 @@ opt = GetoptLong.new(
 	["--pause-all", "-Q", GetoptLong::NO_ARGUMENT],
 	["--resume", "-e", GetoptLong::REQUIRED_ARGUMENT],
 	["--resume-all", "-E", GetoptLong::NO_ARGUMENT],
+	["--report", "-r", GetoptLong::REQUIRED_ARGUMENT],
 	["--output", "-o", GetoptLong::REQUIRED_ARGUMENT],
 	["--output1", "-1", GetoptLong::REQUIRED_ARGUMENT]
 )
@@ -134,6 +136,13 @@ opt.each do |opt,arg|
 		when 	'--resume-all'
 			if operation == ''
 				operation = "resume-all"
+			else
+				give_error
+			end
+		when 	'--report'
+			if operation == ''
+				operation = "report"
+				scanname = arg
 			else
 				give_error
 			end
