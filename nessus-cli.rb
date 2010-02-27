@@ -40,7 +40,7 @@ def give_help
 --wait [t]	wait scan to finish (ask in regular periods of <t> for status)
 --output <f>	output report XML to file <f>
 --output1 <f>	output report XML v1 to file <f>
---deletereport	delete report after finish
+--reportdelete	delete report after finish or delete report by id (if alone)
 --stop <id>	stop scan identified by <id>
 --stop-all	stop all scans
 --pause <id>	pause scan identified by <id>
@@ -75,6 +75,7 @@ opt = GetoptLong.new(
 	["--wait", "-w", GetoptLong::OPTIONAL_ARGUMENT],
 	["--scan", "-s", GetoptLong::REQUIRED_ARGUMENT],
 	["--list-scans", "-l", GetoptLong::NO_ARGUMENT],
+	["--status", "-W", GetoptLong::REQUIRED_ARGUMENT],
 	["--stop", "-S", GetoptLong::REQUIRED_ARGUMENT],
 	["--stop-all", "-a", GetoptLong::NO_ARGUMENT],
 	["--pause", "-q", GetoptLong::REQUIRED_ARGUMENT],
@@ -166,11 +167,11 @@ opt.each do |opt,arg|
 			else
 				wait = arg.to_i
 			end
-		when	'--deletereport'
+		when	'--reportdelete'
 			if arg = ''
 				deletereport=true
 			else
-				operation = "deletereport"
+				operation = "reportdelete"
 				scanname = arg
 			end
 
@@ -180,6 +181,13 @@ opt.each do |opt,arg|
 			output1 = arg
 		when	'--policy'
 			policy = arg
+		when	'--status'
+			if operation == ''
+				operation = "status"
+				scanname = arg
+			else
+				give_error
+			end
 		when	'--url'
 			url = arg
 		when 	'--verbose'
@@ -318,6 +326,10 @@ case operation
 		if verbose > 1
 			list.each {|uuid| puts "[v] Resume all: " + uuid }
 		end
+	when "reportdelete"
+		$stderr.print "[i] Deleting report: " + scanname if verbose > 0
+		n.report_delete(scanname)
+		$stderr.print "done\n" if verbose > 0
 	when "status"
 		puts "status: " + n.scan_status(scanname)	
 	when "list-scans"
