@@ -49,6 +49,7 @@ def give_help
 --resume-all	resume all scans
 --report <id>	download report identified by <id>
 --list-scans	list scans
+--status <id>	get status of scan by <id>
 --verbose	be verbose
 --debug		be even more verbose
 --help		this help
