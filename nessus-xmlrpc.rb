@@ -27,7 +27,7 @@ require 'rexml/document'
 
 module NessusXMLRPC 
 
-class NessusXMLRPC 
+class NessusXMLRPCrexml
 	# initialize object with URL of Nessus
 	def initialize(url,user,pass)
 		if url == ''
@@ -55,22 +55,9 @@ class NessusXMLRPC
 	# send standard Nessus XML request and check
 	# return: rexml/document root
 	def nessus_request(uri, post_data) 
-		url = URI.parse(@nurl + uri) 
-		request = Net::HTTP::Post.new( url.path )
-		request.set_form_data( post_data )
-					  
-		@https = Net::HTTP.new( url.host, url.port )
-		https.use_ssl = true
-		https.verify_mode = OpenSSL::SSL::VERIFY_NONE
-		# puts request
-		begin
-		  response = https.request( request )
-		rescue 
-		  puts "[e] error connecting to server. check URL: " + @nurl 
-		  exit
-		end
+		body=nessus_file_request(uri, post_data)
 		# puts response.body
-		docxml = REXML::Document.new(response.body)
+		docxml = REXML::Document.new(body)
 		begin 
 		status = docxml.root.elements['status'].text
 		rescue
@@ -88,15 +75,16 @@ class NessusXMLRPC
 		url = URI.parse(@nurl + uri) 
 		request = Net::HTTP::Post.new( url.path )
 		request.set_form_data( post_data )
-					  
+	
 		@https = Net::HTTP.new( url.host, url.port )
-		https.use_ssl = true
-		https.verify_mode = OpenSSL::SSL::VERIFY_NONE
+		@https.use_ssl = true
+		@https.verify_mode = OpenSSL::SSL::VERIFY_NONE
 		# puts request
 		begin
-			response = https.request( request )
+			response = @https.request( request )
 		rescue 
-			puts "[e] error connecting to server. check URL: " + @nurl
+			puts "[e] error connecting to server: "+ @nurl + " with URI: " + uri
+
 			exit
 		end
 		# puts response.body
@@ -176,6 +164,16 @@ class NessusXMLRPC
 				return policy.elements['policyID'].text, policy.elements['policyName'].text
 		}
 	end	
+
+	# return array of all policy uids
+	def policy_list_uids
+		post= { "token" => @token } 
+		docxml=nessus_request('policy/list', post)
+		pids=Array.new
+		docxml.root.elements['contents'].elements['policies'].each_element('//policy') { |policy| 
+			pids.push(policy.elements['policyID'].text) }
+		return pids
+	end
 
 	# stop scan identified by scan_uuid
 	def scan_stop(uuid)
@@ -314,6 +312,7 @@ class NessusXMLRPC
 	
 end # end of NessusXMLRPC::Class
 
+# use nokogiri if available (it's faster!)
 nokogiri=true
 begin
 	require 'nokogiri'
@@ -321,25 +320,12 @@ rescue Exception
 	nokogiri=false
 end
 
+# if found nokogiri
 if nokogiri
-class NessusXMLRPCnokogiri < NessusXMLRPC
+class NessusXMLRPCnokogiri < NessusXMLRPCrexml
 	def nessus_request(uri, post_data) 
-		url = URI.parse(@nurl + uri) 
-		request = Net::HTTP::Post.new( url.path )
-		request.set_form_data( post_data )
-					  
-		https = Net::HTTP.new( url.host, url.port )
-		https.use_ssl = true
-		https.verify_mode = OpenSSL::SSL::VERIFY_NONE
-		# puts request
-		begin
-		  response = https.request( request )
-		rescue 
-		  puts "[e] error connecting to server. check URL: " + @nurl 
-		  exit
-		end
-		# puts response.body
-		docxml = Nokogiri::XML.parse(response.body)
+		body=nessus_file_request(uri, post_data)
+		docxml = Nokogiri::XML.parse(body)
 		begin 
 		status = docxml.xpath("/reply/status").collect(&:text)[0]
 		rescue
@@ -392,12 +378,50 @@ class NessusXMLRPCnokogiri < NessusXMLRPC
 		docxml=nessus_request('scan/list', post)
 		return docxml.xpath("/reply/contents/scans/scanList/scan/uuid").collect(&:text)
 	end
+	# returns array of hash of active scans
+	def scan_list_hash
+		post= { "token" => @token } 
+		docxml=nessus_request('scan/list', post)
+		scans=Array.new
+		# any better way of doing this?
+		scans = Array.new
+		docxml.xpath("/reply/contents/scans/scanList/scan/uuid").collect(&:text).each { |uuid|
+			entry=Hash.new	
+			entry['id'] = uuid
+			scans.push entry
+		}
+
+		i=0;
+		docxml.xpath("/reply/contents/scans/scanList/scan/readableName").collect(&:text).each { |name|
+			scans[i]['name']= name
+			i= i + 1
+		}
+
+		i=0;
+		docxml.xpath("/reply/contents/scans/scanList/scan/completion_current").collect(&:text).each { |current|
+			scans[i]['current']= current
+			i= i + 1
+		}
+
+		i=0;
+		docxml.xpath("/reply/contents/scans/scanList/scan/completion_total").collect(&:text).each { |total|
+			scans[i]['total']= total
+			i= i + 1
+		}
+		return scans
+	end
 	# get policy by textname and return policyID
 	def get_policy_id(textname) 
 		post= { "token" => @token } 
 		docxml=nessus_request('policy/list', post)
 		return docxml.xpath("/reply/contents/policies/policy/policyName[text()='"+textname+"']/..policyID").collect(&:text)[0]
 	end	
+	# return array of all policy uids
+	def policy_list_uids
+		post= { "token" => @token } 
+		docxml=nessus_request('policy/list', post)
+		return docxml.xpath("/reply/contents/policies/policy/policyID").collect(&:text)
+	end
 	# get first policy from server and returns: policyID, policyName
 	def get_policy_first
 		post= { "token" => @token } 
@@ -412,6 +436,11 @@ class NessusXMLRPCnokogiri < NessusXMLRPC
 		return docxml.xpath("/reply/contents/policies/policy/policyName").collect(&:text)
 	end
 end # end of NessusXMLRPCnokogiri::Class
+	class NessusXMLRPC < NessusXMLRPCnokogiri
+	end
+else # nokogiri not found, use REXML
+	class NessusXMLRPC < NessusXMLRPCrexml
+	end
 end # if nokogiri
 
 end # of Module
