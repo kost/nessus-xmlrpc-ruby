@@ -317,7 +317,7 @@ end # end of NessusXMLRPC::Class
 nokogiri=true
 begin
 	require 'nokogiri'
-rescue Exception
+rescue LoadError
 	nokogiri=false
 end
 
