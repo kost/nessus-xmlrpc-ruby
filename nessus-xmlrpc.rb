@@ -75,10 +75,11 @@ class NessusXMLRPCrexml
 		url = URI.parse(@nurl + uri) 
 		request = Net::HTTP::Post.new( url.path )
 		request.set_form_data( post_data )
-	
-		@https = Net::HTTP.new( url.host, url.port )
-		@https.use_ssl = true
-		@https.verify_mode = OpenSSL::SSL::VERIFY_NONE
+		if not defined? @https	
+			@https = Net::HTTP.new( url.host, url.port )
+			@https.use_ssl = true
+			@https.verify_mode = OpenSSL::SSL::VERIFY_NONE
+		end
 		# puts request
 		begin
 			response = @https.request( request )
