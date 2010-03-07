@@ -186,7 +186,7 @@ class NessusXMLRPCrexml
 	def scan_stop_all
 		b=scan_list_uids
 		b.each {|uuid|
-		scan_stop(uuid)
+			scan_stop(uuid)
 		}
 		return b
 	end
@@ -200,7 +200,7 @@ class NessusXMLRPCrexml
 	def scan_pause_all
 		b=scan_list_uids
 		b.each {|uuid|
-		scan_pause(uuid)
+			scan_pause(uuid)
 		}
 		return b
 	end
@@ -214,7 +214,7 @@ class NessusXMLRPCrexml
 	def scan_resume_all
 		b=scan_list_uids
 		b.each {|uuid|
-		scan_resume(uuid)
+			scan_resume(uuid)
 		}
 		return b
 	end
@@ -282,12 +282,29 @@ class NessusXMLRPCrexml
 		}
 		return list
 	end
-	# ToDo items
-	def policy_list
-		post= { "token" => @token } 
-		docxml=nessus_request('policy/list', post)
-		return docxml
+	# get hosts for particular report
+	def report_hosts(uuid)
+		post= { "token" => @token, "report" => uuid } 
+		docxml=nessus_request('report/hosts', post)
+		list = Array.new
+		docxml.root.elements['contents'].elements['hostList'].each_element('//host') { |host| 
+			list.push host.elements['hostname'].text
+		}
+		return list
 	end
+	def report_get_host(uuid,host)
+		post= { "token" => @token, "report" => uuid } 
+		docxml=nessus_request('report/hosts', post)
+		docxml.root.elements['contents'].elements['hostList'].each_element('//host') { |host| 
+			if host.elements['hostname'].text == host
+				severity = host.elements['severity'].text
+				current = host.elements['current'].text
+				total = host.elements['total'].text
+				return severity, current, total
+			end
+		}
+	end
+	# ToDo items
 	def plugins_list
 		post= { "token" => @token } 
 		docxml=nessus_request('plugins/list', post)
@@ -298,19 +315,6 @@ class NessusXMLRPCrexml
 		docxml=nessus_request('users/list', post)
 		return docxml
 	end
-	# get hosts for particular scan
-	def scan_hosts(uuid)
-		post= { "token" => @token, "scan_uuid" => uuid } 
-		docxml=nessus_request('scan/hosts', post)
-		return docxml
-	end
-	# returns XML part of list of scans
-	def scan_list
-		post= { "token" => @token } 
-		docxml=nessus_request('scan/list', post)
-		return docxml
-	end
-	
 end # end of NessusXMLRPC::Class
 
 # use nokogiri if available (it's faster!)
@@ -436,6 +440,20 @@ class NessusXMLRPCnokogiri < NessusXMLRPCrexml
 		docxml=nessus_request('policy/list', post)
 		return docxml.xpath("/reply/contents/policies/policy/policyName").collect(&:text)
 	end
+	def report_hosts(uuid)
+		post= { "token" => @token, "report" => uuid } 
+		docxml=nessus_request('report/hosts', post)
+		return docxml.xpath("/reply/contents/hostList/host/hostname").collect(&:text)
+	end
+	def report_get_host(uuid,host)
+		post= { "token" => @token, "report" => uuid } 
+		docxml=nessus_request('report/hosts', post)
+		severity=docxml.xpath("/reply/contents/hostList/host/hostname[text()='"+host+"']/../severity").collect(&:text)[0]
+		current=docxml.xpath("/reply/contents/hostList/host/hostname[text()='"+host+"']/../scanProgressCurrent").collect(&:text)[0]
+		total=docxml.xpath("/reply/contents/hostList/host/hostname[text()='"+host+"']/../scanProgressTotal").collect(&:text)[0]
+		return severity, current, total
+	end
+		
 end # end of NessusXMLRPCnokogiri::Class
 	class NessusXMLRPC < NessusXMLRPCnokogiri
 	end
