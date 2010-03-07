@@ -241,10 +241,10 @@ case operation
 	when "scan"
 		if policy == ''
 			$stderr.print "[w] Policy not defined, using first served from the server\n"
-			pid,name = n.get_policy_first
+			pid,name = n.policy_get_first
 			$stderr.print "[w] using policy id " + pid + " with name " + name + "\n"
 		else
-			pid=n.get_policy_id(policy)
+			pid=n.policy_get_id(policy)
 			if pid == ''
 				$stderr.print "[e] policy doesn't exit: " + policy + "\n"
 				exit 3
@@ -271,13 +271,13 @@ case operation
 		end	
 		unless output == ''
 			$stderr.print "[i] Output XML report to file: "+output if verbose > 0
-			content=n.file_report_download(uid)	
+			content=n.report_file_download(uid)	
 			File.open(output, 'w') {|f| f.write(content) }	
 			$stderr.print ": done\n" if verbose > 0
 		end
 		unless output1 == ''
 			$stderr.print "[i] Output XML1 report to file: "+output1 if verbose > 0
-			content=n.file_report1_download(uid)	
+			content=n.report_file1_download(uid)	
 			File.open(output, 'w') {|f| f.write(content) }	
 			$stderr.print ": done\n" if verbose > 0
 		end
@@ -293,13 +293,13 @@ case operation
 		end
 		unless output == ''
 			$stderr.print "[i] Output XML report to file: "+output if verbose > 0
-			content=n.file_report_download(uid)	
+			content=n.report_file_download(uid)	
 			File.open(output, 'w') {|f| f.write(content) }	
 			$stderr.print ": done\n" if verbose > 0
 		end
 		unless output1 == ''
 			$stderr.print "[i] Output XML1 report to file: "+output1 if verbose > 0
-			content=n.file_report1_download(uid)	
+			content=n.report1_file_download(uid)	
 			File.open(output, 'w') {|f| f.write(content) }	
 			$stderr.print ": done\n" if verbose > 0
 		end

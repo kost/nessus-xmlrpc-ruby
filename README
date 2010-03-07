@@ -52,14 +52,14 @@ require 'nessus-xmlrpc'
 n=NessusXMLRPC::NessusXMLRPC.new('https://localhost:8834','user','pass');
 # n=NessusXMLRPC::NessusXMLRPC.new('','user','pass'); # it's same
 if n.logged_in
-      id,name = n.get_policy_first
+      id,name = n.policy_get_first
       puts "using policy ID: " + id + " with name: " + name
       uid=n.scan_new(id,"textxmlrpc","127.0.0.1")
       puts "status: " + n.scan_status(uid)
       while not n.scan_finished(uid)
               sleep 10
       end
-      content=n.file_report_download(uid)
+      content=n.report_file_download(uid)
       File.open('report.xml', 'w') {|f| f.write(content) }
 end
 
