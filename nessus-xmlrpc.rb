@@ -298,8 +298,8 @@ class NessusXMLRPCrexml
 		docxml.root.elements['contents'].elements['hostList'].each_element('//host') { |host| 
 			if host.elements['hostname'].text == host
 				severity = host.elements['severity'].text
-				current = host.elements['current'].text
-				total = host.elements['total'].text
+				current = host.elements['scanProgressCurrent'].text
+				total = host.elements['scanProgressTotal'].text
 				return severity, current, total
 			end
 		}
