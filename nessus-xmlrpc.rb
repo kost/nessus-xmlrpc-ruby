@@ -103,7 +103,7 @@ class NessusXMLRPCrexml
 	# 
 	# returns: rexml/document root
 	def nessus_request(uri, post_data) 
-		body=nessus_file_request(uri, post_data)
+		body=nessus_http_request(uri, post_data)
 		# puts response.body
 		docxml = REXML::Document.new(body)
 		begin 
@@ -121,7 +121,7 @@ class NessusXMLRPCrexml
 	# send standard Nessus HTTP request and check
 	#
 	# returns: body of response
-	def nessus_file_request(uri, post_data) 
+	def nessus_http_request(uri, post_data) 
 		url = URI.parse(@nurl + uri) 
 		request = Net::HTTP::Post.new( url.path )
 		request.set_form_data( post_data )
@@ -337,7 +337,7 @@ class NessusXMLRPCrexml
 	# returns: XML file of report (nessus v2 format)
 	def report_file_download(report)
 		post= { "token" => @token, "report" => report } 
-		file=nessus_file_request('file/report/download', post)
+		file=nessus_http_request('file/report/download', post)
 		return file
 	end
 
@@ -346,7 +346,7 @@ class NessusXMLRPCrexml
 	# returns: XML file of report (nessus v1 format)
 	def report_file1_download(report)
 		post= { "token" => @token, "report" => report, "v1" => "true" } 
-		file=nessus_file_request('file/report/download', post)
+		file=nessus_http_request('file/report/download', post)
 		return file
 	end
 	
@@ -384,8 +384,8 @@ class NessusXMLRPCrexml
 	# get hosts for particular report
 	#
 	# returns: array of hosts
-	def report_hosts(uuid)
-		post= { "token" => @token, "report" => uuid } 
+	def report_hosts(report_id)
+		post= { "token" => @token, "report" => report_id } 
 		docxml=nessus_request('report/hosts', post)
 		list = Array.new
 		docxml.root.elements['contents'].elements['hostList'].each_element('//host') { |host| 
@@ -397,8 +397,8 @@ class NessusXMLRPCrexml
 	# get host details for particular host identified by report id
 	#
 	# returns: severity, current, total
-	def report_get_host(id,host)
-		post= { "token" => @token, "report" => id } 
+	def report_get_host(report_id,host)
+		post= { "token" => @token, "report" => report_id } 
 		docxml=nessus_request('report/hosts', post)
 		docxml.root.elements['contents'].elements['hostList'].each_element('//host') { |host| 
 			if host.elements['hostname'].text == host
@@ -443,7 +443,7 @@ class NessusXMLRPCnokogiri < NessusXMLRPCrexml
 	#
 	# return: nokogiri XML file
 	def nessus_request(uri, post_data) 
-		body=nessus_file_request(uri, post_data)
+		body=nessus_http_request(uri, post_data)
 		docxml = Nokogiri::XML.parse(body)
 		begin 
 		status = docxml.xpath("/reply/status").collect(&:text)[0]
@@ -551,14 +551,14 @@ class NessusXMLRPCnokogiri < NessusXMLRPCrexml
 		return docxml.xpath("/reply/contents/policies/policy/policyName").collect(&:text)
 	end
 
-	def report_hosts(id)
-		post= { "token" => @token, "report" => id } 
+	def report_hosts(report_id)
+		post= { "token" => @token, "report" => report_id } 
 		docxml=nessus_request('report/hosts', post)
 		return docxml.xpath("/reply/contents/hostList/host/hostname").collect(&:text)
 	end
 
-	def report_get_host(id,host)
-		post= { "token" => @token, "report" => id } 
+	def report_get_host(report_id,host)
+		post= { "token" => @token, "report" => report_id } 
 		docxml=nessus_request('report/hosts', post)
 		severity=docxml.xpath("/reply/contents/hostList/host/hostname[text()='"+host+"']/../severity").collect(&:text)[0]
 		current=docxml.xpath("/reply/contents/hostList/host/hostname[text()='"+host+"']/../scanProgressCurrent").collect(&:text)[0]
