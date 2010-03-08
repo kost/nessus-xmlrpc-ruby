@@ -356,17 +356,6 @@ class NessusXMLRPCrexml
 		docxml=nessus_request('report/delete', post)
 		return docxml
 	end
-	# get list of reports and return XML tree reports
-	def report_list
-		post= { "token" => @token } 
-		docxml=nessus_request('report/list', post)
-		status = docxml.root.elements['status'].text
-		if status == "OK"
-			return docxml.root.elements['contents'].elements['reports']
-		else 
-			return ''
-		end
-	end
 
 	# get list of names of policies
 	#
