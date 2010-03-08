@@ -1,7 +1,1 @@
-- Speed optimization:
- * use keepalive in https communication
- * implement faster XML parser (maybe to detect available and choose fastest one?)
-
-- Class documentation (document available methods)
-
 - Error handling, no puts
