@@ -142,7 +142,7 @@ class NessusXMLRPCrexml
 		return response.body
 	end
 	
-	# login with user & pass and sets object-wide @token, @name and @admin
+	# login with user & password and sets object-wide @token, @name and @admin
 	def login(user, password)
 		post = { "login" => user, "password" => password }
 		docxml=nessus_request('login', post)
