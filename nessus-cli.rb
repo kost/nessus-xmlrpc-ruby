@@ -158,11 +158,28 @@ opt.each do |opt,arg|
 				give_error
 			end
 		when	'--target'
-			# if there's multiple target options, add comma
-			if targets == ''
-				targets = arg
+			if arg[0..6] == 'file://'
+				f = File.open(arg[7..-1], "r")
+				f.each_line do |line|
+					line=line.chomp
+					line=line.strip
+					unless line == '' or line == nil
+						if targets == ''
+							targets = line
+						else
+							targets = targets + "," + line
+						end
+					end
+				end
+				f.close
 			else
-				targets = targets + "," + arg
+				# if there's multiple target options, add comma
+				if targets == ''
+					targets = arg
+					
+				else
+					targets = targets + "," + arg
+				end
 			end
 		when	'--wait'
 			if arg == ''
@@ -228,6 +245,7 @@ if (user == '') or (password == '')
 	exit 1
 end 
 
+$stderr.print "[i] Targets: " + targets +"\n" if verbose > 0 
 $stderr.print "[i] Connecting to nessus server: " if verbose > 0 
 n=NessusXMLRPC::NessusXMLRPC.new(url,user,password) 
 if n.logged_in 
