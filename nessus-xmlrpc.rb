@@ -3,7 +3,7 @@
 #
 # Author:: Vlatko Kosturjak
 #
-# (C) Vlatko Kosturjak, Kost. Distributed under GPL.
+# (C) Vlatko Kosturjak, Kost. Distributed under GPL and BSD license (dual).
 # 
 # == What is this library? 
 # 
