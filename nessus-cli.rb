@@ -2,7 +2,7 @@
 # = nessus-cli.rb:  Nessus command line interface for XML-RPC
 # Author:: Vlatko Kosturjak
 # 
-# (C) Vlatko Kosturjak, Kost. Distributed under GPL.
+# (C) Vlatko Kosturjak, Kost. Distributed under GPL and BSD (dual licensed).
 
 require 'nessus-xmlrpc'
 require 'getoptlong'
