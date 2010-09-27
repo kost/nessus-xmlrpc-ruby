@@ -391,10 +391,11 @@ class NessusXMLRPCrexml
 		docxml=nessus_request('report/hosts', post)
 		docxml.root.elements['contents'].elements['hostList'].each_element('//host') { |host| 
 			if host.elements['hostname'].text == host
-				severity = host.elements['severity'].text
-				current = host.elements['scanProgressCurrent'].text
-				total = host.elements['scanProgressTotal'].text
-				return severity, current, total
+				retval={}
+				retval["severity"] = host.elements['severity'].text
+				retval["current"] = host.elements['scanProgressCurrent'].text
+				retval["total"] = host.elements['scanProgressTotal'].text
+				return retval
 			end
 		}
 	end
@@ -485,33 +486,20 @@ class NessusXMLRPCnokogiri < NessusXMLRPCrexml
 	def scan_list_hash
 		post= { "token" => @token } 
 		docxml=nessus_request('scan/list', post)
-		scans=Array.new
-		# any better way of doing this?
-		scans = Array.new
-		docxml.xpath("/reply/contents/scans/scanList/scan/uuid").collect(&:text).each { |uuid|
-			entry=Hash.new	
-			entry['id'] = uuid
-			scans.push entry
-		}
-
-		i=0;
-		docxml.xpath("/reply/contents/scans/scanList/scan/readableName").collect(&:text).each { |name|
-			scans[i]['name']= name
-			i= i + 1
-		}
-
-		i=0;
-		docxml.xpath("/reply/contents/scans/scanList/scan/completion_current").collect(&:text).each { |current|
-			scans[i]['current']= current
-			i= i + 1
-		}
-
-		i=0;
-		docxml.xpath("/reply/contents/scans/scanList/scan/completion_total").collect(&:text).each { |total|
-			scans[i]['total']= total
-			i= i + 1
-		}
-		return scans
+		items = docxml.xpath("/reply/contents/scans/scanList/scan")
+		retval = items.collect do |item|
+			tmpitem = {}
+			[
+				[:id, 'uuid'],
+				[:name, 'readableName'],
+				[:current, 'completion_current'],
+				[:total, 'completion_total']
+			].collect do |key, xpath|
+			tmpitem[key] = item.at_xpath(xpath).content
+			end
+			tmpitem
+		end
+		return retval
 	end
 
 	def policy_get_id(textname) 
@@ -549,10 +537,19 @@ class NessusXMLRPCnokogiri < NessusXMLRPCrexml
 	def report_get_host(report_id,host)
 		post= { "token" => @token, "report" => report_id } 
 		docxml=nessus_request('report/hosts', post)
-		severity=docxml.xpath("/reply/contents/hostList/host/hostname[text()='"+host+"']/../severity").collect(&:text)[0]
-		current=docxml.xpath("/reply/contents/hostList/host/hostname[text()='"+host+"']/../scanProgressCurrent").collect(&:text)[0]
-		total=docxml.xpath("/reply/contents/hostList/host/hostname[text()='"+host+"']/../scanProgressTotal").collect(&:text)[0]
-		return severity, current, total
+		items = docxml.xpath("/reply/contents/hostList/host/hostname[text()='"+host+"']")
+		retval = items.collect do |item|
+			tmpitem = {}
+			[
+				[:severity, 'severity'],
+				[:current, 'scanProgressCurrent'],
+				[:total, 'scanProgressTotal']
+			].collect do |key, xpath|
+			tmpitem[key] = item.at_xpath(xpath).content
+			end
+			tmpitem
+		end
+		return retval
 	end
 		
 end # end of NessusXMLRPCnokogiri::Class
