@@ -1,6 +1,8 @@
+= nessus-xmlrpc
+
 Nessus XML RPC library and Nessus Command Line interface to XML RPC
 
-(C) Vlatko Kosturjak, Kost. Distributed under GPL and BSD (dual licensed).
+(C) Vlatko Kosturjak, Kost. Distributed under MIT.
 
 Requirements
 ============
@@ -57,10 +59,26 @@ if n.logged_in
       uid=n.scan_new(id,"textxmlrpc","127.0.0.1")
       puts "status: " + n.scan_status(uid)
       while not n.scan_finished(uid)
-              sleep 10
+	      sleep 10
       end
       content=n.report_file_download(uid)
       File.open('report.xml', 'w') {|f| f.write(content) }
 end
 
 Take a look at nessus-cli.rb for more advanced examples.
+
+== Contributing to nessus-xmlrpc
+ 
+* Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
+* Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
+* Fork the project
+* Start a feature/bugfix branch
+* Commit and push until you are happy with your contribution
+* Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
+* Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
+
+== Copyright
+
+Copyright (c) 2010 Vlatko Kosturjak. See LICENSE.txt for
+further details.
+
