@@ -332,7 +332,14 @@ class NessusXMLRPCrexml
 		end
 	end
 	
-	# get report by reportID and return XML file
+  # get an XML file that lists all the reports
+  def reports_list
+    post= { "token" => @token }
+    file=nessus_http_request('report/list', post)
+    return file 
+  end
+	
+  # get report by reportID and return XML file
 	# 
 	# returns: XML file of report (nessus v2 format)
 	def report_file_download(report)
@@ -528,7 +535,14 @@ class NessusXMLRPCnokogiri < NessusXMLRPCrexml
 		return docxml.xpath("/reply/contents/policies/policy/policyName").collect(&:text)
 	end
 
-	def report_hosts(report_id)
+  # get an XML file that lists all the reports
+  def reports_list
+    post= { "token" => @token }
+    file=nessus_http_request('report/list', post)
+    return file 
+  end
+	
+  def report_hosts(report_id)
 		post= { "token" => @token, "report" => report_id } 
 		docxml=nessus_request('report/hosts', post)
 		return docxml.xpath("/reply/contents/hostList/host/hostname").collect(&:text)

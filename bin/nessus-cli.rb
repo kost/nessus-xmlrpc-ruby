@@ -49,6 +49,7 @@ def give_help
 --resume-all	resume all scans
 --report <id>	download report identified by <id>
 --list-scans	list scans
+--list-reports	list reports 
 --list-policy	list policies
 --status <id>	get status of scan by <id>
 --verbose	be verbose
@@ -78,6 +79,7 @@ opt = GetoptLong.new(
 	["--scan", "-s", GetoptLong::REQUIRED_ARGUMENT],
 	["--list-scans", "-l", GetoptLong::NO_ARGUMENT],
 	["--list-policy", "-L", GetoptLong::NO_ARGUMENT],
+  ["--list-reports", "-R", GetoptLong::NO_ARGUMENT],
 	["--status", "-W", GetoptLong::REQUIRED_ARGUMENT],
 	["--stop", "-S", GetoptLong::REQUIRED_ARGUMENT],
 	["--stop-all", "-a", GetoptLong::NO_ARGUMENT],
@@ -236,6 +238,10 @@ opt.each do |opt,arg|
 			else
 				give_error
 			end
+    when '--list-reports'
+      if operation == ''
+        operation = "list-reports"
+      end
 	end
 end
 
@@ -377,6 +383,15 @@ case operation
 			puts policy 
 		}
 		
+  when "list-reports"
+    if output == ''
+      $stderr.print "[e] You want a report but need to set thef filename with --output\n"
+      exit
+    end
+    $stderr.print "[i] Getting list of reports: " if verbose > 0
+    content =  n.reports_list
+    File.open(output, 'w') {|f| f.write(content) }	
+    $stderr.print "done\n" if verbose > 0
 end
 
 $stderr.print "[v] End reached.\n" if verbose > 1
