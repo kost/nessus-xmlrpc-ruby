@@ -335,8 +335,8 @@ class NessusXMLRPCrexml
 	# get report by reportID and return XML file
 	# 
 	# returns: XML file of report (nessus v2 format)
-	def report_file_download(report)
-		post= { "token" => @token, "report" => report } 
+	def report_file_download(id)
+		post= { "token" => @token, "report" => id } 
 		file=nessus_http_request('file/report/download', post)
 		return file
 	end
@@ -344,8 +344,8 @@ class NessusXMLRPCrexml
 	# get report by reportID and return XML file (version 1)
 	# 
 	# returns: XML file of report (nessus v1 format)
-	def report_file1_download(report)
-		post= { "token" => @token, "report" => report, "v1" => "true" } 
+	def report_file1_download(id)
+		post= { "token" => @token, "report" => id, "v1" => "true" } 
 		file=nessus_http_request('file/report/download', post)
 		return file
 	end
