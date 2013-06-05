@@ -4,8 +4,7 @@ Nessus XML RPC library and Nessus Command Line interface to XML RPC
 
 (C) Vlatko Kosturjak, Kost. Distributed under MIT.
 
-Requirements
-============
+##Requirements
 Requirements are quite standard Ruby libraries for HTTPS and XML
 parsing:
 ```ruby
