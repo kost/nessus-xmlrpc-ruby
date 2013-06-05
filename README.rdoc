@@ -17,12 +17,12 @@ nessus-cli.rb
 =============
 Nessus command line interface for XML-RPC.
 
-```ruby
+```
 Type ./nessus-cli.rb --help for command line options.
 ```
 Examples:
 ---------
-```ruby
+```
 ./nessus-cli.rb --user john --password doe --scan scan-localhost --wait --output report.xml --target localhost
 
 ./nessus-cli.rb --user user --password pass --scan localhost-scan --wait 5 -D --output report-localhost.xml --target localhost --verbose 
@@ -31,7 +31,7 @@ Examples:
 ```
 Or if you want to have detached scans:
 --------------------------------------
-```ruby
+```
 ./nessus-cli.rb --user user --password pass --scan localhost-scan --target 127.0.0.1 --policy mypolicy
 
 ./nessus-cli.rb --user user --password pass --list-scans 
