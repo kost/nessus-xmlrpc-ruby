@@ -382,16 +382,16 @@ case operation
 		list.each {|policy| 
 			puts policy 
 		}
-		
-  when "list-reports"
-    if output == ''
-      $stderr.print "[e] You want a report but need to set thef filename with --output\n"
-      exit
-    end
-    $stderr.print "[i] Getting list of reports: " if verbose > 0
-    content =  n.reports_list
-    File.open(output, 'w') {|f| f.write(content) }	
-    $stderr.print "done\n" if verbose > 0
-end
+	
+	when "list-reports"
+		if output == ''
+			$stderr.print "[e] You want a report but need to set the filename with --output\n"
+			exit
+		end
+		$stderr.print "[i] Getting list of reports: " if verbose > 0
+		content =  n.reports_list
+		File.open(output, 'w') {|f| f.write(content) }	
+		$stderr.print "done\n" if verbose > 0
+	end
 
 $stderr.print "[v] End reached.\n" if verbose > 1
