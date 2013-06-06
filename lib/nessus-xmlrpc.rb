@@ -512,7 +512,7 @@ class NessusXMLRPCnokogiri < NessusXMLRPCrexml
 	def policy_get_id(textname) 
 		post= { "token" => @token } 
 		docxml=nessus_request('policy/list', post)
-		return docxml.xpath("/reply/contents/policies/policy/policyName[text()='"+textname+"']/..policyID").collect(&:text)[0]
+    return docxml.xpath("/reply/contents/policies/policy[policyName='"+textname+"']/policyID").collect(&:text)
 	end	
 
 	def policy_list_uids
